@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"> <!-- مشخص کردن نوع کاراکترها (UTF-8) برای پشتیبانی از زبان‌های مختلف -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- تنظیم صفحه برای نمایش درست روی دستگاه‌های مختلف -->
+    <title>افزودن رستوران</title> <!-- عنوان صفحه که داخل تب مرورگر نمایش داده می‌شود -->
+    <style>
+        body {
+            font-family: 'Arial', sans-serif; /* تنظیم فونت صفحه، ابتدا Arial سپس فونت پیش‌فرض سیستم */
+            background: linear-gradient(135deg, #74ebd5, #9face6); /* اضافه کردن پس‌زمینه با گرادیان رنگ */
+            margin: 0; /* حذف فاصله‌های خارجی مرورگر */
+            display: flex; /* استفاده از Flexbox برای چینش مرکز */
+            justify-content: center; /* تراز کردن محتوا در محور افقی */
+            align-items: center; /* تراز کردن محتوا در محور عمودی */
+            height: 100vh; /* ارتفاع صفحه برابر با کل ارتفاع صفحه نمایش */
+        }
+
+        /* استایل جعبه حاوی فرم */
+        .container {
+            background: white; /* پس‌زمینه سفید برای جعبه فرم */
+            width: 100%; /* عرض 100٪ برای موبایل و دستگاه‌های کوچک */
+            max-width: 400px; /* حداکثر عرض جعبه فرم */
+            padding: 20px; /* فاصله داخلی بین محتوا و لبه‌های جعبه فرم */
+            border-radius: 10px; /* انحنای گوشه‌های جعبه */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* اضافه کردن سایه دور جعبه */
+            text-align: center; /* تراز کردن متن داخل جعبه به مرکز */
+        }
+
+        h1 {
+            margin-bottom: 20px; /* فاصله پایینی عنوان */
+            font-size: 24px; /* اندازه فونت عنوان */
+            color: #4A4A4A; /* رنگ خاکستری برای عنوان */
+        }
+
+        label {
+            font-size: 14px; /* اندازه فونت متن‌های داخل فرم */
+            font-weight: bold; /* ضخیم‌تر کردن متن‌ها */
+            color: #4A4A4A; /* رنگ خاکستری برای label ها */
+            display: block; /* قرار گیری label در یک خط جداگانه */
+            margin-top: 15px; /* فاصله از بالا برای جلوگیری از چسبیدن به عناصر قبلی */
+        }
+
+        input {
+            width: 100%; /* عرض کامل برای ورودی‌ها */
+            padding: 12px; /* فاصله داخلی از لبه‌ها */
+            margin: 10px 0; /* فاصله از بالا و پایین */
+            border: 1px solid #ccc; /* خط حاشیه خاکستری نازک */
+            border-radius: 5px; /* انحنای گوشه‌ها */
+            box-sizing: border-box; /* کنترل اندازه ورودی با توجه به padding و border */
+            font-size: 14px; /* اندازه فونت متن داخل ورودی‌ها */
+        }
+
+        button {
+            background: #4CAF50; /* رنگ سبز برای دکمه */
+            color: white; /* رنگ متن روی دکمه سفید */
+            border: none; /* حذف حاشیه پیش‌فرض */
+            padding: 12px 20px; /* فاصله داخلی از متن داخل دکمه */
+            font-size: 16px; /* اندازه قلم متن دکمه */
+            border-radius: 5px; /* انحنای گوشه‌های دکمه */
+            cursor: pointer; /* تغییر شکل نشانگر ماوس به شکل دست برای لینک */
+            width: 100%; /* عرض کامل دکمه */
+            transition: background 0.3s; /* افزودن انیمیشن تغییر رنگ برای حالت هاور */
+        }
+
+        button:hover {
+            background: #45a049; /* تغییر رنگ دکمه به سبز تیره‌تر هنگام هاور */
+        }
+
+        /* نمایش پیام خطا */
+        .error-message {
+            color: #721c24; /* رنگ قرمز تیره برای متن خطا */
+            background-color: #f8d7da; /* پس‌زمینه قرمز کم‌رنگ */
+            border: 1px solid #f5c6cb; /* خط حاشیه قرمز روشن */
+            border-radius: 5px; /* انحنای گوشه‌های پیام */
+            padding: 10px; /* فاصله داخلی پیام */
+            margin-bottom: 15px; /* فاصله از عناصر پایین‌تر */
+            text-align: center; /* تراز متن پیام خطا به مرکز */
+        }
+    </style>
+</head>
+<body>
+    <div class="container"> <!-- جعبه اصلی فرم -->
+        <h1>افزودن رستوران جدید</h1> <!-- عنوان بالای فرم -->
+        {% if error %} <!-- بررسی وجود پیام خطا (برای نمایش پیام) -->
+        <div class="error-message">{{ error }}</div> <!-- نمایش پیام خطا در صورتی که وجود داشته باشد -->
+        {% endif %}
+        <form method="POST" action="/add-restaurant"> <!-- تعریف فرم با ارسال اطلاعات به مسیر /add-restaurant -->
+            <label>مختصات:</label> <!-- عنوان فیلدی که مختصات را نمایش می‌دهد -->
+            <input type="text" name="lat" readonly value="{{ lat }}"> <!-- مقدار پیش‌فرض Latitude از متغیر lat، فقط خواندنی -->
+            <input type="text" name="lon" readonly value="{{ lon }}"> <!-- مقدار پیش‌فرض Longitude از متغیر lon، فقط خواندنی -->
+
+            <label>نام رستوران:</label> <!-- عنوان فیلد نام رستوران -->
+            <input type="text" name="name" placeholder="نام رستوران را وارد کنید"> <!-- ورودی نام رستوران با متن راهنما -->
+
+            <button type="submit">ذخیره رستوران</button> <!-- دکمه تایید ارسال فرم -->
+        </form>
+    </div>
+</body>
+</html>
+
+

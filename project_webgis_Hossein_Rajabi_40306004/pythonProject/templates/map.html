@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en"> <!-- تعیین نوع سند HTML5 و تنظیم زبان به انگلیسی -->
+<head>
+    <meta charset="UTF-8"> <!-- تنظیم کدینگ کاراکترها به UTF-8 برای پشتیبانی از زبان‌های مختلف -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- پشتیبانی از نمایش صحیح در دستگاه‌های مختلف -->
+    <title>نمایش نقشه منطقه شش تهران</title> <!-- عنوانی که در تب مرورگر نشان داده خواهد شد -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol/ol.css"> <!-- بارگذاری CSS اصلی OpenLayers -->
+    <style>
+        /* تنظیمات استایل اولیه */
+        html, body {
+            margin: 0; /* حذف حاشیه پیش‌فرض مرورگر */
+            padding: 0; /* حذف پدینگ پیش‌فرض مرورگر */
+            width: 100%; /* عرض کل صفحه */
+            height: 100%; /* ارتفاع کل صفحه */
+        }
+        #map {
+            width: 100%; /* عرض نقشه برابر کل صفحه */
+            height: 100%; /* ارتفاع نقشه برابر کل صفحه */
+        }
+
+        /* دکمه‌های بالای نقشه */
+        #logout-button, #add-restaurant-button {
+            position: absolute; /* قرارگیری در موقعیت ثابت روی نقشه */
+            top: 10px; /* فاصله از بالای صفحه */
+            z-index: 1000; /* اولویت نمایش بالاتر نسبت به نقشه */
+            background-color: #f44336; /* رنگ پیش‌فرض قرمز برای دکمه */
+            color: white; /* رنگ متن سفید */
+            padding: 8px 12px; /* فاصله داخلی دکمه از اطراف متن */
+            border: none; /* حذف خطوط حاشیه */
+            border-radius: 5px; /* گرد کردن گوشه‌های دکمه */
+            cursor: pointer; /* تغییر نشانگر ماوس به دست هنگام هاور */
+        }
+        #add-restaurant-button {
+            right: 100px; /* فاصله از سمت راست برای دکمه افزودن رستوران */
+            background-color: #4caf50; /* رنگ سبز برای افزودن رستوران */
+        }
+        #logout-button {
+            right: 10px; /* فاصله از سمت راست برای دکمه خروج */
+        }
+        #add-restaurant-button:hover {
+            background-color: #45a049; /* تغییر رنگ هنگام هاور روی دکمه افزودن رستوران */
+        }
+        #logout-button:hover {
+            background-color: #d32f2f; /* تغییر رنگ هنگام هاور روی دکمه خروج */
+        }
+
+        /* تنظیمات پاپ‌آپ نمایش اطلاعات */
+        .popup {
+            background: white; /* پس‌زمینه سفید برای پاپ‌آپ */
+            border-radius: 5px; /* گرد کردن گوشه‌ها */
+            border: 1px solid #ccc; /* خطوط حاشیه خاکستری */
+            padding: 10px; /* فاصله داخلی پاپ‌آپ از متن */
+            position: absolute; /* قرارگیری در موقعیت ثابت */
+            min-width: 150px; /* حداقل عرض پاپ‌آپ */
+            z-index: 10; /* اولویت بالاتر */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* سایه برای ایجاد عمق */
+        }
+        .popup .close-btn {
+            display: block; /* قرار دادن دکمه بستن در یک خط جدا */
+            text-align: right; /* قرار دادن متن در سمت راست */
+            font-size: 14px; /* اندازه قلم کوچک‌تر */
+            color: red; /* رنگ متن قرمز */
+            cursor: pointer; /* قابلیت کلیک روی دکمه بستن */
+        }
+    </style>
+</head>
+<body>
+    <div id="map"> <!-- عنصر HTML که نقشه OpenLayers در آن نمایش داده می‌شود -->
+        <button id="logout-button" onclick="location.href='/logout'">خروج</button> <!-- دکمه برای خروج از حساب -->
+        <button id="add-restaurant-button">اضافه کردن رستوران</button> <!-- دکمه برای فعال‌کردن حالت افزودن رستوران -->
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/ol/dist/ol.js"></script> <!-- بارگذاری کتابخانه OpenLayers -->
+    <script>
+        // --- تعریف لایه‌ها ---
+
+        // لایه OSM (نقشه پایه OpenStreetMap)
+        const osmLayer = new ol.layer.Tile({
+            source: new ol.source.OSM(), // منبع داده از پایگاه OpenStreetMap
+        });
+
+        // لایه WMS برای نمایش محدوده منطقه شش تهران
+        const regionLayer = new ol.layer.Image({
+            source: new ol.source.ImageWMS({
+                url: 'http://localhost:8080/geoserver/my_project2/wms', // آدرس GeoServer
+                params: { 'LAYERS': 'my_project2:m8', 'TILED': true }, // مشخصات لایه WMS
+                ratio: 1, // نسبت نمایش
+                serverType: 'geoserver', // نوع سرور
+            }),
+        });
+
+        // لایه WMS برای نمایش نقاط رستوران‌ها
+        const restaurantLayer = new ol.layer.Image({
+            source: new ol.source.ImageWMS({
+                url: 'http://localhost:8080/geoserver/my_project2/wms', // آدرس GeoServer برای لایه رستوران‌ها
+                params: { 'LAYERS': 'my_project2:restuarant3', 'TILED': true }, // مشخصات لایه رستوران
+                ratio: 1,
+                serverType: 'geoserver',
+            }),
+        });
+
+        // --- تنظیمات نقشه ---
+        const view = new ol.View({
+            center: ol.proj.fromLonLat([51.405, 35.719]), // مرکز نقشه با مختصات تهران
+            zoom: 13.5, // سطح بزرگ‌نمایی
+        });
+
+        const map = new ol.Map({
+            target: 'map', // مقدار هدف برای نمایش نقشه
+            layers: [osmLayer, regionLayer, restaurantLayer], // افزودن لایه‌ها به نقشه
+            view: view, // استفاده از ویو تعریف‌شده
+        });
+
+        // --- افزودن کنترل‌های نقشه ---
+        map.addControl(new ol.control.ZoomSlider()); // افزودن کنترل تغییر بزرگ‌نمایی
+        map.addControl(new ol.control.FullScreen()); // افزودن کنترل تمام‌صفحه
+        map.addControl(new ol.control.ScaleLine({ units: 'metric' })); // افزودن خط مقیاس (متریک)
+
+        // --- حالت افزودن نقطه‌ای (رستوران جدید) ---
+        let isAddingPoint = false; // وضعیت فعال یا غیرفعال بودن حالت افزودن نقطه
+
+        const addRestaurantButton = document.getElementById('add-restaurant-button'); // دریافت دکمه افزودن رستوران
+        addRestaurantButton.addEventListener('click', () => {
+            isAddingPoint = true; // فعال کردن حالت افزودن نقطه
+            alert('برای اضافه کردن رستوران روی موقعیت موردنظر کلیک کنید.'); // نمایش پیام به کاربر
+        });
+
+        map.on('singleclick', (event) => {
+            if (isAddingPoint) { // در صورتی که حالت افزودن نقطه فعال باشد
+                const coordinates = ol.proj.toLonLat(event.coordinate); // تبدیل مختصات به سیستم جغرافیایی (Lat/Lon)
+                const [lon, lat] = [coordinates[0].toFixed(6), coordinates[1].toFixed(6)]; // دریافت طول و عرض جغرافیایی
+                const url = `/add-restaurant?lat=${lat}&lon=${lon}`; // تنظیم URL برای ارسال به سرور
+                location.href = url; // هدایت کاربر به آدرس اضافه کردن رستوران
+            }
+        });
+
+        // --- تنظیمات پاپ‌آپ برای نمایش اطلاعات رستوران‌ها ---
+        const overlayContainer = document.createElement('div'); // ایجاد عنصر HTML برای پاپ‌آپ
+        overlayContainer.className = 'popup'; // اضافه کردن کلاس پاپ‌آپ
+        document.body.appendChild(overlayContainer); // اضافه کردن عنصر به body صفحه
+
+        const overlay = new ol.Overlay({
+            element: overlayContainer,
+            positioning: 'bottom-center', // موقعیت پاپ‌آپ نسبت به نقطه کلیک‌شده
+            stopEvent: false, // جلوگیری از مسدود کردن سایر رویدادها
+        });
+        map.addOverlay(overlay); // افزودن پاپ‌آپ به نقشه
+
+        overlayContainer.addEventListener('click', (e) => {
+            if (e.target.classList.contains('close-btn')) { // اگر دکمه بستن کلیک شود
+                overlay.setPosition(undefined); // مخفی کردن پاپ‌آپ
+            }
+        });
+
+        // --- نمای پاپ‌آپ هنگام کلیک روی رستوران‌ها ---
+        map.on('singleclick', (event) => {
+            if (!isAddingPoint) { // در صورتی که حالت افزودن نقطه فعال نباشد
+                const viewResolution = view.getResolution(); // دریافت رزولوشن نقشه
+                const url = restaurantLayer.getSource().getFeatureInfoUrl(
+                    event.coordinate, // مختصات کلیک روی نقشه
+                    viewResolution, // رزولوشن برای درخواست WMS
+                    'EPSG:3857', // سیستم مختصات پیش‌فرض OpenLayers
+                    { INFO_FORMAT: 'application/json' } // فرمت پاسخ از سرور
+                );
+
+                if (url) { // اگر URL معتبری بازگشت داده شود
+                    fetch(url) // درخواست اطلاعات از سرور
+                        .then(response => response.json()) // تبدیل پاسخ به فرمت JSON
+                        .then((json) => {
+                            const features = json.features; // دریافت ویژگی‌های پاسخ
+                            if (features.length > 0) { // اگر اطلاعاتی وجود داشته باشد
+                                const properties = features[0].properties; // دریافت خصوصیات
+                                overlayContainer.innerHTML = `
+                                    <div class="close-btn">بستن</div> <!-- دکمه بستن پاپ‌آپ -->
+                                    <strong>نام رستوران: </strong>${properties.name || "نامشخص"}<br> <!-- نمایش نام رستوران -->
+                                `;
+                                overlay.setPosition(event.coordinate); // نمایش پاپ‌آپ در محل کلیک
+                            } else {
+                                overlay.setPosition(undefined); // مخفی کردن پاپ‌آپ
+                            }
+                        });
+                } else {
+                    overlay.setPosition(undefined); // مخفی کردن پاپ‌آپ
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+
+

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en"> <!-- نوع سند HTML5 و تنظیم زبان صفحه به انگلیسی -->
+<head>
+    <meta charset="UTF-8"> <!-- تنظیم نوع کدینگ کاراکترها به UTF-8 برای پشتیبانی از تمام زبان‌ها -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- تنظیم ریسپانسیو بودن طراحی برای دستگاه‌های مختلف -->
+    <title>Login</title> <!-- عنوان صفحه که در تب مرورگر نمایش داده می‌شود -->
+
+    <style>
+        /* طراحی کلی برای بدنه صفحه */
+        body {
+            font-family: 'Arial', sans-serif; /* تنظیم فونت پیش‌فرض برای صفحه */
+            background: linear-gradient(135deg, #74ebd5, #9face6); /* پس‌زمینه گرادیان رنگی */
+            margin: 0; /* حذف حاشیه پیش‌فرض مرورگر */
+            display: flex; /* استفاده از Flexbox برای چیدمان صفحه */
+            justify-content: center; /* تراز پا‌به‌پای المان اصلی به صورت افقی */
+            align-items: center; /* تراز المان در مرکز به صورت عمودی */
+            height: 100vh; /* ارتفاع صفحه برابر با کل صفحه نمایش */
+        }
+
+        /* تنظیمات طراحی برای جعبه لاگین */
+        .login-container {
+            background: white; /* پس‌زمینه سفید برای جعبه */
+            width: 100%; /* عرض جعبه */
+            max-width: 360px; /* اندازه حداکثر عرض برای جلوگیری از کشیدگی بیش‌از‌حد */
+            padding: 20px; /* فاصله داخلی جعبه از عناصر داخل */
+            border-radius: 10px; /* گرد کردن گوشه‌های جعبه */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* اضافه کردن سایه برای جلوه سه‌بعدی */
+            text-align: center; /* تمام نوشته‌ها داخل جعبه وسط‌چین می‌شوند */
+        }
+
+        /* استایل عنوان صفحه لاگین */
+        .login-container h1 {
+            margin-bottom: 20px; /* فاصله پایین عنوان از سایر محتوا */
+            font-size: 24px; /* اندازه فونت عنوان */
+            color: #4A4A4A; /* رنگ خاکستری تیره برای عنوان */
+        }
+
+        /* طراحی پیام خطا */
+        .error-message {
+            color: #721c24; /* قرمز تیره برای متن خطا */
+            background-color: #f8d7da; /* پس‌زمینه خطا (صورتی کمرنگ) */
+            border: 1px solid #f5c6cb; /* حاشیه پیام خطا */
+            border-radius: 5px; /* گرد کردن گوشه‌های پیام خطا */
+            padding: 10px; /* فاصله داخلی از متن پیام */
+            margin-bottom: 15px; /* فاصله از سایر عناصر */
+        }
+
+        /* طراحی فیلدهای ورودی */
+        .login-container input {
+            width: 100%; /* عرض فیلد ورودی برابر با تمام فضای جعبه باشد */
+            padding: 12px; /* فضای داخلی برای افزایش وضوح و کاربرپسندی */
+            margin: 10px 0; /* فاصله بین فیلدها */
+            border: 1px solid #ccc; /* حاشیه نرم خاکستری برای فیلدها */
+            border-radius: 5px; /* گرد کردن گوشه‌های فیلدها */
+            box-sizing: border-box; /* شمردن پدینگ و حاشیه در عرض */
+            font-size: 14px; /* اندازه متن درون فیلد */
+        }
+
+        /* طراحی دکمه ارسال فرم */
+        .login-container button {
+            background: #4CAF50; /* رنگ سبز برای دکمه */
+            color: white; /* رنگ متن داخل دکمه */
+            border: none; /* حذف هرگونه حاشیه */
+            padding: 12px 20px; /* فاصله داخلی دکمه */
+            font-size: 16px; /* اندازه متن دکمه */
+            border-radius: 5px; /* گرد کردن گوشه‌های دکمه */
+            cursor: pointer; /* تغییر نشانگر به دست هنگام هاور */
+            width: 100%; /* عرض دکمه برابر با عرض جعبه */
+            transition: background 0.3s; /* تغییر پس‌زمینه در حالت هاور با انیمیشن */
+        }
+
+        .login-container button:hover {
+            background: #45a049; /* تغییر رنگ دکمه هنگام هاور */
+        }
+
+        /* استایل متن و لینک ثبت‌نام */
+        .login-container .register-link {
+            margin-top: 15px; /* فاصله بالای متن لینک از سایر محتوا */
+            font-size: 14px; /* اندازه کوچک‌تر برای متن لینک */
+            color: #4A4A4A; /* رنگ خاکستری برای متن لینک */
+        }
+
+        .login-container .register-link a {
+            color: #007bff; /* رنگ آبی برای لینک ثبت‌نام */
+            text-decoration: none; /* حذف خط زیر لینک */
+        }
+
+        .login-container .register-link a:hover {
+            text-decoration: underline; /* نمایش خط زیر لینک هنگام هاور */
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container"> <!-- جعبه اصلی طراحی شده برای قسمت ورود -->
+        <h1>ورود به حساب کاربری</h1> <!-- عنوان صفحه -->
+        {% if error_message %} <!-- بررسی نمایش پیام خطا با استفاده از قالب Jinja2 (در Flask) -->
+        <div class="error-message">
+            <strong>خطا:</strong> {{ error_message }} <!-- متن خطا که از سرور توسط متغیر جینجا پر می‌شود -->
+        </div>
+        {% endif %} <!-- پایان شرط نمایش پیام خطا -->
+
+        <!-- فرم ارسال اطلاعات برای ورود -->
+        <form action="/login" method="POST"> <!-- ارسال اطلاعات فرم از طریق متد POST به مسیر ورود -->
+            <input name="username" type="text" placeholder="نام کاربری"> <!-- فیلد ورودی نام کاربری -->
+            <input name="password" type="password" placeholder="رمز عبور"> <!-- فیلد ورودی رمز عبور -->
+            <button type="submit">ورود</button> <!-- دکمه برای ارسال فرم -->
+        </form>
+
+        <!-- پیام و لینک برای کاربرانی که هنوز ثبت‌نام نکرده‌اند -->
+        <p class="register-link">
+            حساب کاربری ندارید؟ <a href="/register">ثبت‌نام کنید</a> <!-- لینک به صفحه ثبت‌نام کاربران -->
+        </p>
+    </div>
+</body>
+</html>
+

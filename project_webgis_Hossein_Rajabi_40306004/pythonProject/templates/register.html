@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="fa"> <!-- سند HTML و تنظیم زبان به صورت فارسی -->
+<head>
+    <meta charset="UTF-8"> <!-- تنظیم نوع کدینگ کاراکترها به UTF-8 برای پشتیبانی از زبان فارسی -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- جهت تنظیم نمایش صحیح در دستگاه‌های مختلف -->
+    <title>ثبت نام</title> <!-- عنوان صفحه که در تب مرورگر نمایش داده می‌شود -->
+
+    <style>
+        /* طراحی کلی برای صفحه */
+        body {
+            font-family: 'Arial', sans-serif; /* فونت پیش‌فرض برای صفحه */
+            background: linear-gradient(135deg, #74ebd5, #9face6); /* پس‌زمینه گرادیان رنگی */
+            margin: 0; /* حذف فاصله پیش‌فرض در مرورگر */
+            display: flex; /* استفاده از Flexbox برای مرکزچین کردن محتوا */
+            justify-content: center; /* تراز محتوا به صورت افقی در مرکز */
+            align-items: center; /* تراز محتوا به صورت عمودی در مرکز */
+            height: 100vh; /* ارتفاع صفحه برابر با کل صفحه‌نمایش */
+        }
+
+        /* طراحی جعبه ثبت‌نام */
+        .register-container {
+            background: white; /* پس‌زمینه سفید برای جعبه ورودی */
+            width: 100%; /* عرض جعبه */
+            max-width: 380px; /* حداکثر عرض برای جلوگیری از کشیدگی بیش‌ازحد */
+            padding: 25px; /* فاصله داخلی جعبه */
+            border-radius: 10px; /* گرد کردن گوشه‌های جعبه */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2); /* سایه‌دهی برای ایجاد جلوه سه‌بعدی */
+            text-align: center; /* متن وسط‌چین داخل جعبه */
+        }
+
+        /* استایل عنوان صفحه */
+        .register-container h1 {
+            margin-bottom: 20px; /* فاصله پایین عنوان از فیلد ورودی */
+            font-size: 24px; /* اندازه فونت عنوان */
+            color: #4A4A4A; /* رنگ خاکستری تیره برای متن عنوان */
+        }
+
+        /* پیام خطا */
+        .alert-danger {
+            color: #721c24; /* رنگ متن خطا (قرمز تیره) */
+            background-color: #f8d7da; /* پس‌زمینه خطا (صورتی کمرنگ) */
+            border: 1px solid #f5c6cb; /* حاشیه خطا */
+            border-radius: 5px; /* گرد کردن گوشه‌های پیام خطا */
+            padding: 10px; /* فاصله داخلی پیام خطا */
+            margin-bottom: 15px; /* فاصله پایین پیام خطا از سایر عناصر */
+        }
+
+        /* استایل فیلدهای ورودی */
+        .register-container input {
+            width: 100%; /* عرض کامل فیلدهای ورودی */
+            padding: 12px; /* فاصله داخلی برای خوانایی بیشتر */
+            margin: 10px 0; /* فاصله بین فیلدهای ورودی */
+            border: 1px solid #ccc; /* حاشیه ساده خاکستری */
+            border-radius: 5px; /* گرد کردن گوشه‌های فیلدها */
+            box-sizing: border-box; /* شمارش حاشیه و پدینگ در عرض فیلد */
+            font-size: 14px; /* اندازه فونت مناسب برای متن داخلی فیلد */
+        }
+
+        /* طراحی دکمه ثبت‌نام */
+        .register-container button {
+            background: #4CAF50; /* رنگ سبز برای دکمه */
+            color: white; /* رنگ سفید برای متن */
+            border: none; /* حذف حاشیه‌های پیش‌فرض */
+            padding: 12px 20px; /* فاصله داخلی دکمه */
+            font-size: 16px; /* اندازه فونت برای متن دکمه */
+            border-radius: 5px; /* گرد کردن گوشه‌ها */
+            cursor: pointer; /* تغییر شکل ماوس به دست هنگام هاور */
+            width: 100%; /* عرض دکمه برابر با کل بخش داخلی جعبه */
+            transition: background 0.3s; /* افکت تغییر صاف رنگ هنگام هاور */
+        }
+
+        .register-container button:hover {
+            background: #45a049; /* تغییر رنگ دکمه در هنگام هاور */
+        }
+
+        /* لینک ورود به سیستم */
+        .register-container .login-link {
+            margin-top: 15px; /* فاصله بالای متن لینک از دکمه */
+            font-size: 14px; /* اندازه فونت متن لینک */
+            color: #4A4A4A; /* رنگ خاکستری برای متن لینک */
+        }
+
+        /* استایل خود لینک (ورود) */
+        .register-container .login-link a {
+            color: #007bff; /* رنگ آبی برای لینک */
+            text-decoration: none; /* حذف خط زیر لینک */
+        }
+
+        .register-container .login-link a:hover {
+            text-decoration: underline; /* ایجاد خط زیر لینک هنگام هاور */
+        }
+    </style>
+</head>
+<body>
+    <div class="register-container"> <!-- جعبه اصلی ثبت‌نام -->
+        <h1>ثبت نام</h1> <!-- عنوان صفحه -->
+        {% if error_message %} <!-- شرط برای بررسی وجود پیام خطا در سمت سرور -->
+        <div class="alert-danger">
+            <strong>خطا:</strong> {{ error_message }} <!-- نمایش پیام خطا -->
+        </div>
+        {% endif %} <!-- پایان شرط نمایش خطا -->
+
+        <!-- فرم ثبت‌نام -->
+        <form action="/register" method="POST"> <!-- فرم که به سمت سرور ارسال می‌شود -->
+            <input name="username" type="text" placeholder="نام کاربری" required> <!-- فیلد نام کاربری -->
+            <input name="email" type="email" placeholder="ایمیل" required> <!-- فیلد ایمیل -->
+            <input name="password" type="password" placeholder="رمز عبور" required> <!-- فیلد رمز عبور -->
+            <button type="submit">ثبت نام</button> <!-- دکمه ارسال فرم -->
+        </form>
+
+        <!-- لینک ورود به سیستم -->
+        <p class="login-link">
+            قبلاً ثبت‌نام کرده‌اید؟ <a href="/login">وارد شوید</a> <!-- لینک به صفحه ورود -->
+        </p>
+    </div>
+</body>
+</html>
+
+        .
